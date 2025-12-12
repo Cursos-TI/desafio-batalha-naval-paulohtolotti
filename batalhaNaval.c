@@ -5,6 +5,41 @@
 // Siga os comentários para implementar cada parte do desafio.
 
 int main() {
+
+    //Inicializando o tabuleiro com 10 posições e usando um for loop para acessar cada posição e atribuir 0
+    const int  BOARD_SIZE = 10;
+    int board[BOARD_SIZE][BOARD_SIZE];
+
+    for(int i=0; i<BOARD_SIZE; i++){
+        for(int j=0; j<BOARD_SIZE; j++){
+            board[i][j] = 0;
+        }
+    }
+
+    //DECLARAÇÃO DOS NAVIOS
+    const int SHIP_SIZE = 3;
+    int verticalShip[] = {3, 3, 3}; 
+    int horizontalShip[] = {3, 3, 3};
+
+    //Posicionando manualmente os navios no tabuleiro
+    //POSIÇÃO DO NAVIO VERTICAL
+    board[2][1] = 3;
+    board[3][1] = 3;
+    board[4][1] = 3;
+
+    //POSIÇÃO DO NAVIO VERTICAL
+    board[9][7] = 3;
+    board[9][8] = 3;
+    board[9][9] = 3;
+
+    //EXIBIÇÃO DO TABULEIRO
+    for(int i=0; i<BOARD_SIZE; i++){
+        for(int j=0; j<BOARD_SIZE; j++){
+            printf("%d\t",board[i][j]);
+        }
+        printf("\n");
+    }
+
     // Nível Novato - Posicionamento dos Navios
     // Sugestão: Declare uma matriz bidimensional para representar o tabuleiro (Ex: int tabuleiro[5][5];).
     // Sugestão: Posicione dois navios no tabuleiro, um verticalmente e outro horizontalmente.
