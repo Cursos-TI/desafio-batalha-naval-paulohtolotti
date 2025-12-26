@@ -1,101 +1,137 @@
 #include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 
-// Desafio Batalha Naval - MateCheck
-// Este código inicial serve como base para o desenvolvimento do sistema de Batalha Naval.
-// Siga os comentários para implementar cada parte do desafio.
+#define SKILL_SIZE 5  // Tamanho das matrizes de habilidade (5x5)
+
+// Função para criar a matriz de habilidade Cone
+void createCone(int coneMatrix[SKILL_SIZE][SKILL_SIZE]) {
+    int center = SKILL_SIZE / 2;  // Centro da matriz (2 para 5x5)
+    for (int i = 0; i < SKILL_SIZE; i++) {
+        for (int j = 0; j < SKILL_SIZE; j++) {
+            // Inicializa a matriz com 0
+            coneMatrix[i][j] = 0;
+            // Controla a posição para montar o cone corretamente
+            if (j >= center - i && j <= center + i) {
+                coneMatrix[i][j] = 1;
+            }
+        }
+    }
+}
+
+// Função para criar a matriz de habilidade Cruz
+void createCross(int crossMatrix[SKILL_SIZE][SKILL_SIZE]) {
+    int center = SKILL_SIZE / 2;
+    for (int i = 0; i < SKILL_SIZE; i++) {
+        for (int j = 0; j < SKILL_SIZE; j++) {
+            // Inicializar com 0
+            crossMatrix[i][j] = 0;
+              // Controla a posição para montar o cone corretamente
+            if (i == center || j == center) {
+                crossMatrix[i][j] = 1;
+            }
+        }
+    }
+}
+
+// Função para criar a matriz de habilidade Octaedro (losango)
+void createOctahedron(int octaMatrix[SKILL_SIZE][SKILL_SIZE]) {
+    int center = SKILL_SIZE / 2;
+    for (int i = 0; i < SKILL_SIZE; i++) {
+        for (int j = 0; j < SKILL_SIZE; j++) {
+            // Inicializar com 0
+            octaMatrix[i][j] = 0;
+            // Condicional para losango: distância de Manhattan do centro
+            int dist = abs(i - center) + abs(j - center);
+            if (dist <= center) {
+                octaMatrix[i][j] = 1;
+            }
+        }
+    }
+}
+
+// Função para sobrepor a habilidade no tabuleiro
+void applySkill(int board[10][10], int skillMatrix[SKILL_SIZE][SKILL_SIZE], int originRow, int originCol) {
+    int center = SKILL_SIZE / 2;
+    for (int i = 0; i < SKILL_SIZE; i++) {
+        for (int j = 0; j < SKILL_SIZE; j++) {
+            if (skillMatrix[i][j] == 1) {
+                int boardRow = originRow + (i - center);
+                int boardCol = originCol + (j - center);
+                // Verificar limites do tabuleiro
+                if (boardRow >= 0 && boardRow < 10 && boardCol >= 0 && boardCol < 10) {
+                    board[boardRow][boardCol] = 5;  // Marcar área afetada
+                }
+            }
+        }
+    }
+}
+
+// Função para exibir o tabuleiro
+void displayBoard(int board[10][10]) {
+    printf("TABULEIRO DE BATALHA NAVAL COM HABILIDADES\n");
+    printf("\tA\tB\tC\tD\tE\tF\tG\tH\tI\tJ\n");
+    for (int i = 0; i < 10; i++) {
+        printf("%d\t", i);
+        for (int j = 0; j < 10; j++) {
+            printf("%d\t", board[i][j]);
+        }
+        printf("\n");
+    }
+}
 
 int main() {
-
-    //Inicializando o tabuleiro com 10 posições e usando um for loop para acessar cada posição e atribuir 0
-    const int  BOARD_SIZE = 10;
+    const int BOARD_SIZE = 10;
     int board[BOARD_SIZE][BOARD_SIZE];
 
-    for(int i=0; i<BOARD_SIZE; i++){
-        for(int j=0; j<BOARD_SIZE; j++){
+    // Inicializar tabuleiro com água (0)
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
             board[i][j] = 0;
         }
     }
 
-    //DECLARAÇÃO DOS NAVIOS
-    const int SHIP_SIZE = 3;
-    int verticalShip[] = {3, 3, 3}; 
-    int horizontalShip[] = {3, 3, 3};
+    // Posicionar navios (mantido do código original)
+    // Navio vertical
+    board[3][1] = 3;
+    board[4][1] = 3;
+    board[5][1] = 3;
 
-    //Posicionando manualmente os navios no tabuleiro
-    //POSIÇÃO DO NAVIO VERTICAL
-    if(board[2][1] == 0 && board[3][1] == 0 && board[4][1] == 0 ){
-        board[3][1] = 3;
-        board[4][1] = 3;
-        board[5][1] = 3;
-    }
+    // Navio horizontal
+    board[9][7] = 3;
+    board[9][8] = 3;
+    board[9][9] = 3;
 
-    //POSIÇÃO DO NAVIO VERTICAL
-    if(board[9][7] == 0 && board[9][8] == 0 && board[9][9] == 0) {
-        board[9][7] = 3;
-        board[9][8] = 3;
-        board[9][9] = 3;
-    }
+    // Navios na diagonal
+    board[0][0] = 3;
+    board[1][1] = 3;
+    board[2][2] = 3;
+    board[4][4] = 3;
+    board[5][5] = 3;
+    board[6][6] = 3;
 
-    /*
-    *   Implementando mais dois návios horizontais.
-    *   Uso de uma variável contadora para controlar quantos navios foram posicionados
-    *   e uma variável para controlar se um navio foi inteiramente posicionado.
-    *   Posicionando na diagonal principal da matriz
-    */
-    int shipsToInsert = 2;
-    int shipCounter;
+    // Definir pontos de origem para as habilidades (fixos no código)
+    int coneOriginRow = 2, coneOriginCol = 2;
+    int crossOriginRow = 5, crossOriginCol = 5;
+    int octaOriginRow = 7, octaOriginCol = 7;
 
-    do {
-        shipCounter = 0;
-       for(int i=0; i<BOARD_SIZE; i++) {
+    // Criar matrizes de habilidade
+    int coneMatrix[SKILL_SIZE][SKILL_SIZE];
+    createCone(coneMatrix);
 
-            if(shipCounter == 3)  {
-                shipsToInsert--;
-                break; //Quebra o laço se as três peças forem posicionadas
-            }
+    int crossMatrix[SKILL_SIZE][SKILL_SIZE];
+    createCross(crossMatrix);
 
-            for(int j=0; j<BOARD_SIZE; j++) {
+    int octaMatrix[SKILL_SIZE][SKILL_SIZE];
+    createOctahedron(octaMatrix);
 
-                if(i == 3 && j == 3) continue; // PULANDO UM ESPAÇO NA DIAGONAL PARA FACILITAR A VISUALIZAÇÃO
-                if (i == j && board[i][j] == 0) {
-                    board[i][j] = 3;
-                    shipCounter++;
-                }
+    // Aplicar habilidades ao tabuleiro
+    applySkill(board, coneMatrix, coneOriginRow, coneOriginCol);
+    applySkill(board, crossMatrix, crossOriginRow, crossOriginCol);
+    applySkill(board, octaMatrix, octaOriginRow, octaOriginCol);
 
-            }
-       }
-
-    } while(shipsToInsert > 0);
-
-        //EXIBIÇÃO DO TABULEIRO
-    for(int i=0; i<BOARD_SIZE; i++){
-        for(int j=0; j<BOARD_SIZE; j++){
-            printf("%d\t",board[i][j]);
-        }
-        printf("\n");
-    }
-
-
-    // Nível Mestre - Habilidades Especiais com Matrizes
-    // Sugestão: Crie matrizes para representar habilidades especiais como cone, cruz, e octaedro.
-    // Sugestão: Utilize estruturas de repetição aninhadas para preencher as áreas afetadas por essas habilidades no tabuleiro.
-    // Sugestão: Exiba o tabuleiro com as áreas afetadas, utilizando 0 para áreas não afetadas e 1 para áreas atingidas.
-
-    // Exemplos de exibição das habilidades:
-    // Exemplo para habilidade em cone:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 1 1 1 1 1
-    
-    // Exemplo para habilidade em octaedro:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 0 0 1 0 0
-
-    // Exemplo para habilidade em cruz:
-    // 0 0 1 0 0
-    // 1 1 1 1 1
-    // 0 0 1 0 0
+    // Exibir tabuleiro final
+    displayBoard(board);
 
     return 0;
 }
